@@ -765,7 +765,14 @@
 
         // Global Bridge Function: Allows standard jQuery and GSAP scripts to call Firebase
         window.logFirebaseEvent = (eventName, params = {}) => {
-            logEvent(analytics, eventName, params);
+            const payload = { eventName, ...params };
+            console.log('[Tracking]', payload);
+
+            try {
+                logEvent(analytics, eventName, params);
+            } catch (error) {
+                console.error('[Tracking] Failed to send Firebase event:', error);
+            }
         };
 
         // Fire initial page view milestone
