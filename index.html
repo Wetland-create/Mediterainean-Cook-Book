@@ -188,9 +188,9 @@
                     </p>
                     <div
                         class="d-grid d-md-flex justify-content-center justify-content-lg-start gap-3 mb-4 animate-hero-cta">
-                        <a href="#offer-stack"
-                            class="btn btn-success btn-lg btn-rounded fw-bold px-5 shadow-2 tracking-hero-cta"
-                            data-cta-label="Hero Main CTA">
+                        <a href="#checkout"
+                            class="btn cta-button btn-success btn-lg btn-rounded fw-bold px-5 shadow-2 tracking-hero-cta"
+                            data-cta-label="Hero Main CTA" data-location="hero_section">
                             Get Started Now <i class="fas fa-arrow-right ms-2"></i>
                         </a>
                     </div>
@@ -378,8 +378,9 @@
                         </div>
                     </div>
                     <div class="mt-4 pt-2">
-                        <a href="#offer-stack"
-                            class="btn btn-warning btn-lg btn-rounded fw-bold px-4 tracking-solution-cta"
+                        <a href="#checkout"
+                            class="btn cta-button btn-warning btn-lg btn-rounded fw-bold px-4 tracking-solution-cta"
+                            data-location="mid_story_section"
                             data-cta-label="Solution CTA">Claim Your Copy Today</a>
                     </div>
                 </div>
@@ -706,8 +707,9 @@
                         </div>
 
                         <div>
-                            <a href="#"
-                                class="btn btn-warning btn-lg w-100 btn-rounded fw-bold mb-3 shadow-0 tracking-final-cta"
+                            <a href="#YOUR_CHECKOUT_URL"
+                                class="btn cta-button btn-warning btn-lg w-100 btn-rounded fw-bold mb-3 shadow-0 tracking-final-cta"
+                                data-location="price_box_final"
                                 data-cta-label="Price Card Final CTA">
                                 Secure Access Now <i class="fas fa-lock ms-2"></i>
                             </a>
@@ -794,6 +796,9 @@
             let hasFiredPainScroll = false;
             let hasFiredBlueprintScroll = false;
 
+            // Tracks unique FAQ interactions by tracking string configurations
+            const processedFaqs = new Set();
+            
             // ==========================================
             // 2. GSAP SCROLL TRIGGERS & ANALYTICS
             // ==========================================
@@ -809,7 +814,7 @@
                             // Check state flag to prevent double-firing to Firebase
                             if (!hasFiredPainScroll) {
                                 if (typeof window.logFirebaseEvent === 'function') {
-                                    window.logFirebaseEvent('med_diet_scroll_pain');
+                                    window.logFirebaseEvent('med_diet_scroll_pain_sec_1');
                                 }
                                 hasFiredPainScroll = true; // Instantly lock flag
                             }
@@ -829,7 +834,7 @@
                             // Check state flag
                             if (!hasFiredBlueprintScroll) {
                                 if (typeof window.logFirebaseEvent === 'function') {
-                                    window.logFirebaseEvent('med_diet_scroll_blueprint');
+                                    window.logFirebaseEvent('med_diet_scroll_value_sec_2');
                                 }
                                 hasFiredBlueprintScroll = true; // Instantly lock flag
                             }
@@ -849,7 +854,7 @@
                 if (isExpanded) {
                     let questionText = $(this).text().trim();
                     if (typeof window.logFirebaseEvent === 'function') {
-                        window.logFirebaseEvent('med_diet_faq_toggle', {
+                        window.logFirebaseEvent('med_diet_faq_toggle_sec_3', {
                             faq_question: questionText
                         });
                     }
@@ -875,19 +880,19 @@
                 const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
 
                 tl.from(".animate-hero-badge", { y: -20, opacity: 0, duration: 0.5 })
-                    .from(".animate-hero-title span", {
-                        y: 20,
-                        opacity: 0,
-                        stagger: 0.08,
-                        duration: 1.2,
-                    }, "-=0.3")
-                    // Add continuous looping animation to the timeline
-                    .to(".animate-hero-title span", {
-                        y: -5,
-                        duration: 1,
-                        stagger: { each: 0.1, repeat: -1, yoyo: true },
-                        ease: "sine.inOut"
-                    }, "-=0.3");
+                gsap.from(".animate-hero-title span", {
+                    y: 20,
+                    opacity: 0,
+                    stagger: 0.08,
+                    duration: 1.2,
+                }, "-=0.3")
+                // Add continuous looping animation to the timeline
+                gsap.to(".animate-hero-title span", {
+                    y: -5,
+                    duration: 1,
+                    stagger: { each: 0.1, repeat: -1, yoyo: true },
+                    ease: "sine.inOut"
+                }, "-=0.3");
 
 
                 // 3D Premium floating effect for the book mockup image
