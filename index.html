@@ -337,7 +337,7 @@
         </div>
     </section>
 
-    <section class="py-5 bg-white" id="solution-section">
+    <section class="py-5 bg-white" id="solution-section" id="blueprint-section">
         <div class="container py-4">
             <div class="row align-items-center g-5">
                 <div class="col-md-5 text-center" id="solution-image-container">
@@ -841,7 +841,7 @@
                             // Check state flag
                             if (!hasFiredBlueprintScroll) {
                                 if (typeof window.logFirebaseEvent === 'function') {
-                                    window.logFirebaseEvent('med_diet_scroll_value_sec_2');
+                                    window.logFirebaseEvent('med_diet_scroll_blueprint_sec_2');
                                 }
                                 hasFiredBlueprintScroll = true; // Instantly lock flag
                             }
