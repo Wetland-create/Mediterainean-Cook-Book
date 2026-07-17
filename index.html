@@ -337,7 +337,7 @@
         </div>
     </section>
 
-    <section class="py-5 bg-white" id="solution-section" id="blueprint-section">
+    <section class="py-5 bg-white blueprint-section" id="solution-section">
         <div class="container py-4">
             <div class="row align-items-center g-5">
                 <div class="col-md-5 text-center" id="solution-image-container">
@@ -380,8 +380,7 @@
                     <div class="mt-4 pt-2">
                         <a href="#checkout"
                             class="btn cta-button btn-warning btn-lg btn-rounded fw-bold px-4 tracking-solution-cta"
-                            data-location="mid_story_section"
-                            data-cta-label="Solution CTA">Claim Your Copy Today</a>
+                            data-location="mid_story_section" data-cta-label="Solution CTA">Claim Your Copy Today</a>
                     </div>
                 </div>
             </div>
@@ -709,8 +708,7 @@
                         <div>
                             <a href="#YOUR_CHECKOUT_URL"
                                 class="btn cta-button btn-warning btn-lg w-100 btn-rounded fw-bold mb-3 shadow-0 tracking-final-cta"
-                                data-location="price_box_final"
-                                data-cta-label="Price Card Final CTA">
+                                data-location="price_box_final" data-cta-label="Price Card Final CTA">
                                 Secure Access Now <i class="fas fa-lock ms-2"></i>
                             </a>
                             <div class="d-flex justify-content-center gap-3 text-white small pt-1">
@@ -786,6 +784,13 @@
             gsap.registerPlugin(ScrollTrigger);
             console.log("HTML funnels initialized successfully. Ready for GSAP and GA4 layers.");
 
+            // 2. DIAGNOSTIC LOGS: Let's check if jQuery can see your HTML sections right now
+            console.log("[Diagnostic]: Pain Section exists in DOM? ", $('#pain-section').length > 0);
+            console.log("[Diagnostic]: Blueprint Section exists in DOM? ", $('.blueprint-section').length > 0);
+            console.log("[Diagnostic]: GSAP & ScrollTrigger loaded? ", typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined');
+
+            // Data Integrity Flags
+
             initHeroAnimations();
             initPainAnimations();
             initStoryAnimations();
@@ -798,14 +803,10 @@
 
 
 
-            // 1. DATA INTEGRITY STATE FLAGS (Fail-Safes)
-            // ==========================================
-            let hasFiredPainScroll = false;
-            let hasFiredBlueprintScroll = false;
-
-            // Tracks unique FAQ interactions by tracking string configurations
+            /// Data Integrity Flags
+            let painScrollLogged = false;
+            let blueprintScrollLogged = false;
             const processedFaqs = new Set();
-            
             // ==========================================
             // 2. GSAP SCROLL TRIGGERS & ANALYTICS
             // ==========================================
@@ -815,35 +816,38 @@
                 gsap.to('#pain-section', {
                     scrollTrigger: {
                         trigger: '#pain-section',
-                        start: 'top 75%', // Visual animation starts when top of section hits 75% viewport height
-                        toggleActions: 'play none none none', // Animation plays smoothly
+                        start: 'top 75%',
+                        markers: true, // <--- TEMPORARY: This draws visual marker lines on your screen!
+                        id: "pain-trigger",
                         onEnter: function () {
-                            // Check state flag to prevent double-firing to Firebase
-                            if (!hasFiredPainScroll) {
+                            if (!painScrollLogged) {
                                 if (typeof window.logFirebaseEvent === 'function') {
                                     window.logFirebaseEvent('med_diet_scroll_pain_sec_1');
+                                } else {
+                                    console.log('✔ [Local Console Simulation] logged: "med_diet_scroll_pain_sec_1"');
                                 }
-                                hasFiredPainScroll = true; // Instantly lock flag
+                                painScrollLogged = true;
                             }
                         }
                     }
                 });
             }
-
             // Blueprint / Value Section Scroll Trigger
-            if ($('#blueprint-section').length) {
-                gsap.to('#blueprint-section', {
+            if ($('.blueprint-section').length) {
+                gsap.to('.blueprint-section', {
                     scrollTrigger: {
-                        trigger: '#blueprint-section',
+                        trigger: '.blueprint-section',
                         start: 'top 75%',
-                        toggleActions: 'play none none none',
+                        markers: true, // <--- TEMPORARY: Visual debug markers
+                        class: "blueprint-trigger",
                         onEnter: function () {
-                            // Check state flag
-                            if (!hasFiredBlueprintScroll) {
+                            if (!blueprintScrollLogged) {
                                 if (typeof window.logFirebaseEvent === 'function') {
                                     window.logFirebaseEvent('med_diet_scroll_blueprint_sec_2');
+                                } else {
+                                    console.log('✔ [Local Console Simulation] logged: "med_diet_scroll_blueprint_sec_2"');
                                 }
-                                hasFiredBlueprintScroll = true; // Instantly lock flag
+                                blueprintScrollLogged = true;
                             }
                         }
                     }
@@ -870,313 +874,313 @@
 
             // Tracking Call-To-Action Clicks
             $('.cta-button').on('click', function () {
-                let buttonLocation = $(this).data('location') || 'unknown'; // Use HTML5 data-location attribute if present
+                let placementContext = $(this).data('location') || 'unspecified_placement';
                 if (typeof window.logFirebaseEvent === 'function') {
-                    window.logFirebaseEvent('med_diet_cta_click', {
-                        placement: buttonLocation
-                    });
+                    window.logFirebaseEvent('med_diet_cta_click', { placement: placementContext });
+                } else {
+                    console.log(`✔ [Local Console Simulation] logged: "med_diet_cta_click" for context: ${placementContext}`);
                 }
             });
+        });
 
 
-            /* ==========================================================================
-               1. HERO SECTION: The "Value Pop"
-               ========================================================================== */
-            function initHeroAnimations() {
-                // Set up the entrance timeline
-                const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+        /* ==========================================================================
+           1. HERO SECTION: The "Value Pop"
+           ========================================================================== */
+        function initHeroAnimations() {
+            // Set up the entrance timeline
+            const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
 
-                tl.from(".animate-hero-badge", { y: -20, opacity: 0, duration: 0.5 })
-                gsap.from(".animate-hero-title span", {
-                    y: 20,
-                    opacity: 0,
-                    stagger: 0.08,
-                    duration: 1.2,
-                }, "-=0.3")
-                // Add continuous looping animation to the timeline
-                gsap.to(".animate-hero-title span", {
-                    y: -5,
-                    duration: 1,
-                    stagger: { each: 0.1, repeat: -1, yoyo: true },
-                    ease: "sine.inOut"
-                }, "-=0.3");
+            tl.from(".animate-hero-badge", { y: -20, opacity: 0, duration: 0.5 })
+            gsap.from(".animate-hero-title span", {
+                y: 20,
+                opacity: 0,
+                stagger: 0.08,
+                duration: 1.2,
+            }, "-=0.3")
+            // Add continuous looping animation to the timeline
+            gsap.to(".animate-hero-title span", {
+                y: -5,
+                duration: 1,
+                stagger: { each: 0.1, repeat: -1, yoyo: true },
+                ease: "sine.inOut"
+            }, "-=0.3");
 
 
-                // 3D Premium floating effect for the book mockup image
-                gsap.from(".animate-hero-book", {
-                    x: 50,
-                    opacity: 0,
-                    duration: 1.9,
-                    ease: "power4.out"
+            // 3D Premium floating effect for the book mockup image
+            gsap.from(".animate-hero-book", {
+                x: 50,
+                opacity: 0,
+                duration: 1.9,
+                ease: "power4.out"
+            });
+
+            // Continuous premium float effect after entry - loops infinitely
+            gsap.to(".animate-hero-book", {
+                y: "-15px",
+                rotation: 1,
+                duration: 5,
+                ease: "sine.inOut",
+                yoyo: true,
+                repeat: -1
+            });
+        }
+
+        // Fallback accordion wiring in case MDB toggles don't initialize
+        function initAccordionFallback() {
+            const accordion = document.getElementById('faqAccordion');
+            if (!accordion) return;
+
+            accordion.querySelectorAll('[data-mdb-toggle="collapse"]').forEach(btn => {
+                const targetSelector = btn.getAttribute('data-mdb-target');
+                if (!targetSelector) return;
+
+                btn.addEventListener('click', function (e) {
+                    // Allow MDB to handle it first; fallback only if it didn't toggle
+                    const target = document.querySelector(targetSelector);
+                    if (!target) return;
+
+                    // If MDB is working, the element will toggle via its own handlers.
+                    // We check after a tiny delay and apply fallback state if still unchanged.
+                    setTimeout(() => {
+                        const isShown = target.classList.contains('show');
+
+                        // If nothing changed, apply manual toggle behavior
+                        if (!isShown && !btn.classList.contains('collapsed')) {
+                            // likely MDB didn't toggle; proceed to manually toggle
+                            toggleAccordion(accordion, btn, target);
+                        } else if (!isShown && btn.classList.contains('collapsed')) {
+                            // MDB didn't open; manually open
+                            toggleAccordion(accordion, btn, target);
+                        } else if (isShown && !btn.classList.contains('collapsed')) {
+                            // state consistent; no-op
+                        }
+                    }, 10);
+                });
+            });
+
+            function toggleAccordion(root, button, panel) {
+                // close others
+                root.querySelectorAll('.accordion-collapse.show').forEach(open => {
+                    if (open === panel) return;
+                    open.classList.remove('show');
+                    const b = root.querySelector('[data-mdb-target="#' + open.id + '"]');
+                    if (b) { b.classList.add('collapsed'); b.setAttribute('aria-expanded', 'false'); }
                 });
 
-                // Continuous premium float effect after entry - loops infinitely
-                gsap.to(".animate-hero-book", {
-                    y: "-15px",
-                    rotation: 1,
-                    duration: 5,
-                    ease: "sine.inOut",
-                    yoyo: true,
-                    repeat: -1
-                });
-            }
-
-            // Fallback accordion wiring in case MDB toggles don't initialize
-            function initAccordionFallback() {
-                const accordion = document.getElementById('faqAccordion');
-                if (!accordion) return;
-
-                accordion.querySelectorAll('[data-mdb-toggle="collapse"]').forEach(btn => {
-                    const targetSelector = btn.getAttribute('data-mdb-target');
-                    if (!targetSelector) return;
-
-                    btn.addEventListener('click', function (e) {
-                        // Allow MDB to handle it first; fallback only if it didn't toggle
-                        const target = document.querySelector(targetSelector);
-                        if (!target) return;
-
-                        // If MDB is working, the element will toggle via its own handlers.
-                        // We check after a tiny delay and apply fallback state if still unchanged.
-                        setTimeout(() => {
-                            const isShown = target.classList.contains('show');
-
-                            // If nothing changed, apply manual toggle behavior
-                            if (!isShown && !btn.classList.contains('collapsed')) {
-                                // likely MDB didn't toggle; proceed to manually toggle
-                                toggleAccordion(accordion, btn, target);
-                            } else if (!isShown && btn.classList.contains('collapsed')) {
-                                // MDB didn't open; manually open
-                                toggleAccordion(accordion, btn, target);
-                            } else if (isShown && !btn.classList.contains('collapsed')) {
-                                // state consistent; no-op
-                            }
-                        }, 10);
-                    });
-                });
-
-                function toggleAccordion(root, button, panel) {
-                    // close others
-                    root.querySelectorAll('.accordion-collapse.show').forEach(open => {
-                        if (open === panel) return;
-                        open.classList.remove('show');
-                        const b = root.querySelector('[data-mdb-target="#' + open.id + '"]');
-                        if (b) { b.classList.add('collapsed'); b.setAttribute('aria-expanded', 'false'); }
-                    });
-
-                    const willShow = !panel.classList.contains('show');
-                    if (willShow) {
-                        panel.classList.add('show');
-                        button.classList.remove('collapsed');
-                        button.setAttribute('aria-expanded', 'true');
-                    } else {
-                        panel.classList.remove('show');
-                        button.classList.add('collapsed');
-                        button.setAttribute('aria-expanded', 'false');
-                    }
+                const willShow = !panel.classList.contains('show');
+                if (willShow) {
+                    panel.classList.add('show');
+                    button.classList.remove('collapsed');
+                    button.setAttribute('aria-expanded', 'true');
+                } else {
+                    panel.classList.remove('show');
+                    button.classList.add('collapsed');
+                    button.setAttribute('aria-expanded', 'false');
                 }
             }
+        }
 
-            /* ==========================================================================
-               2. PAIN SECTION: Staggered Tension Cards & Timeline Drop
-               ========================================================================== */
-            function initPainAnimations() {
-                // Heavy drop effect on pain cards to emphasize psychological frustration
-                // Pain Cards Drop
-                gsap.from(".pain-card", {
-                    scrollTrigger: {
-                        trigger: "#pain-cards-row",
-                        start: "top 80%",
-                        end: "bottom 20%",
-                        toggleActions: "play reverse play reverse" // Enables reverse tracking on up-scroll
-                    },
-                    y: 50,
-                    opacity: 0,
-                    stagger: 0.2,
-                    duration: 0.8,
-                    ease: "back.out(1.4)"
-                });
+        /* ==========================================================================
+           2. PAIN SECTION: Staggered Tension Cards & Timeline Drop
+           ========================================================================== */
+        function initPainAnimations() {
+            // Heavy drop effect on pain cards to emphasize psychological frustration
+            // Pain Cards Drop
+            gsap.from(".pain-card", {
+                scrollTrigger: {
+                    trigger: "#pain-cards-row",
+                    start: "top 80%",
+                    end: "bottom 20%",
+                    toggleActions: "play reverse play reverse" // Enables reverse tracking on up-scroll
+                },
+                y: 50,
+                opacity: 0,
+                stagger: 0.2,
+                duration: 0.8,
+                ease: "back.out(1.4)"
+            });
 
-                // Consequences Timeline
-                gsap.from(".timeline-node", {
-                    scrollTrigger: {
-                        trigger: "#pain-timeline-container",
-                        start: "top 85%",
-                        end: "bottom 15%",
-                        toggleActions: "play reverse play reverse"
-                    },
-                    scale: 0.85,
-                    opacity: 0,
-                    stagger: 0.15,
-                    duration: 0.6,
-                    ease: "power2.out"
-                });
-            }
+            // Consequences Timeline
+            gsap.from(".timeline-node", {
+                scrollTrigger: {
+                    trigger: "#pain-timeline-container",
+                    start: "top 85%",
+                    end: "bottom 15%",
+                    toggleActions: "play reverse play reverse"
+                },
+                scale: 0.85,
+                opacity: 0,
+                stagger: 0.15,
+                duration: 0.6,
+                ease: "power2.out"
+            });
+        }
 
-            /* ==========================================================================
-               3. STORY SECTION: Interactive Narrative Tracking Line
-               ========================================================================== */
-            function initStoryAnimations() {
-                // Consolidated milestone animation to prevent property conflicts
-                gsap.from(".story-milestone", {
-                    scrollTrigger: {
-                        trigger: "#story-visual-timeline",
-                        start: "top 70%",
-                        end: "bottom 30%",
-                        toggleActions: "play reverse play reverse"
-                    },
-                    x: 30,
-                    opacity: 0,
-                    stagger: 0.25,
-                    duration: 0.7,
-                    ease: "power3.out"
-                });
-            }
+        /* ==========================================================================
+           3. STORY SECTION: Interactive Narrative Tracking Line
+           ========================================================================== */
+        function initStoryAnimations() {
+            // Consolidated milestone animation to prevent property conflicts
+            gsap.from(".story-milestone", {
+                scrollTrigger: {
+                    trigger: "#story-visual-timeline",
+                    start: "top 70%",
+                    end: "bottom 30%",
+                    toggleActions: "play reverse play reverse"
+                },
+                x: 30,
+                opacity: 0,
+                stagger: 0.25,
+                duration: 0.7,
+                ease: "power3.out"
+            });
+        }
 
-            /* ==========================================================================
-               4. INTRODUCE SOLUTION: Highlighting WhatsApp Cover Core Value Badges
-               ========================================================================== */
-            function initSolutionAnimations() {
-                // Reveal the main image mockup elegantly
-                // Elegant fade and scale-up for the main cookbook cover image
-                gsap.from(".solution-book-img", {
-                    scrollTrigger: {
-                        trigger: "#solution-section",
-                        start: "top 65%",
-                        toggleActions: "play none none none"
-                    },
-                    opacity: 0,
-                    scale: 0.9,
-                    duration: 1.2,
-                    ease: "power2.out"
-                });
+        /* ==========================================================================
+           4. INTRODUCE SOLUTION: Highlighting WhatsApp Cover Core Value Badges
+           ========================================================================== */
+        function initSolutionAnimations() {
+            // Reveal the main image mockup elegantly
+            // Elegant fade and scale-up for the main cookbook cover image
+            gsap.from(".solution-book-img", {
+                scrollTrigger: {
+                    trigger: "#solution-section",
+                    start: "top 65%",
+                    toggleActions: "play none none none"
+                },
+                opacity: 0,
+                scale: 0.9,
+                duration: 1.2,
+                ease: "power2.out"
+            });
 
-                // Staggered reveal for the feature dashboards/boxes underneath it
-                gsap.from(".solution-feature-box", {
-                    scrollTrigger: {
-                        trigger: "#solution-highlights",
-                        start: "top 70%",
-                        end: "bottom 20%",
-                        toggleActions: "play reverse play reverse"
-                    },
-                    opacity: 0,
-                    x: 30,
-                    stagger: 0.2,
-                    duration: 0.8,
-                    ease: "power3.out"
-                });
-            }
+            // Staggered reveal for the feature dashboards/boxes underneath it
+            gsap.from(".solution-feature-box", {
+                scrollTrigger: {
+                    trigger: "#solution-highlights",
+                    start: "top 70%",
+                    end: "bottom 20%",
+                    toggleActions: "play reverse play reverse"
+                },
+                opacity: 0,
+                x: 30,
+                stagger: 0.2,
+                duration: 0.8,
+                ease: "power3.out"
+            });
+        }
 
-            function initAccordionAnimations() {
+        function initAccordionAnimations() {
 
-                gsap.from(".faq-item-wrapper", {
-                    scrollTrigger: {
-                        trigger: "#faq-section",
-                        start: "top 70%",
-                        toggleActions: "play none none none"
-                    },
-                    y: 40,
-                    opacity: 0,
-                    stagger: 0.15,
-                    duration: 0.8,
-                    ease: "power3.out"
-                });
+            gsap.from(".faq-item-wrapper", {
+                scrollTrigger: {
+                    trigger: "#faq-section",
+                    start: "top 70%",
+                    toggleActions: "play none none none"
+                },
+                y: 40,
+                opacity: 0,
+                stagger: 0.15,
+                duration: 0.8,
+                ease: "power3.out"
+            });
 
-                document.querySelectorAll('.accordion-collapse').forEach(panel => {
+            document.querySelectorAll('.accordion-collapse').forEach(panel => {
 
-                    panel.addEventListener('show.mdb.collapse', function () {
+                panel.addEventListener('show.mdb.collapse', function () {
 
-                        gsap.from(this.querySelector('.accordion-body'), {
-                            opacity: 0,
-                            y: 20,
-                            duration: 0.4,
-                            ease: "power2.out"
-                        });
-
+                    gsap.from(this.querySelector('.accordion-body'), {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        ease: "power2.out"
                     });
 
                 });
-            }
 
-            /* ==========================================================================
-               5. OFFER STACK: Dramatic Curtain-Drop Reveal for Pricing Container
-               ========================================================================== */
-            function initOfferStackAnimations() {
-                // Dramatic curtain-drop reveal for the stack items list
-                gsap.from("#stack-items-list", {
-                    scrollTrigger: {
-                        trigger: "#offer-stack",
-                        start: "top 60%",
-                        toggleActions: "play none none none"
-                    },
-                    y: -100,            // Drops down from above
-                    opacity: 0,
-                    scaleY: 0.3,        // Stretches out slightly as it falls
-                    transformOrigin: "top center",
-                    duration: 1.2,
-                    ease: "back.out(1.2)" // Snaps into place dramatically
-                });
+            });
+        }
 
-                // Dramatic curtain-drop reveal for the price anchor box
-                gsap.from("#price-anchor-box", {
-                    scrollTrigger: {
-                        trigger: "#offer-stack",
-                        start: "top 60%",
-                        end: "bottom 20%",
-                        toggleActions: "play reverse play reverse"
-                    },
-                    y: -100,
-                    opacity: 0,
-                    scaleY: 0.3,
-                    transformOrigin: "top center",
-                    duration: 1.2,
-                    ease: "back.out(1.2)"
-                });
-            }
+        /* ==========================================================================
+           5. OFFER STACK: Dramatic Curtain-Drop Reveal for Pricing Container
+           ========================================================================== */
+        function initOfferStackAnimations() {
+            // Dramatic curtain-drop reveal for the stack items list
+            gsap.from("#stack-items-list", {
+                scrollTrigger: {
+                    trigger: "#offer-stack",
+                    start: "top 60%",
+                    toggleActions: "play none none none"
+                },
+                y: -100,            // Drops down from above
+                opacity: 0,
+                scaleY: 0.3,        // Stretches out slightly as it falls
+                transformOrigin: "top center",
+                duration: 1.2,
+                ease: "back.out(1.2)" // Snaps into place dramatically
+            });
 
-            /* ==========================================================================
-               6. TESTIMONIAL CAROUSEL: Elegant Transition Overlay
-               ========================================================================== */
-            function initCarouselAnimations() {
-                // Elegant transition overlay for the testimonial slides
-                const carouselEl = document.getElementById('testimonialCarousel');
-                // Explicitly initialize the MDB Carousel to ensure it starts cycling
-                const carousel = new mdb.Carousel(carouselEl);
+            // Dramatic curtain-drop reveal for the price anchor box
+            gsap.from("#price-anchor-box", {
+                scrollTrigger: {
+                    trigger: "#offer-stack",
+                    start: "top 60%",
+                    end: "bottom 20%",
+                    toggleActions: "play reverse play reverse"
+                },
+                y: -100,
+                opacity: 0,
+                scaleY: 0.3,
+                transformOrigin: "top center",
+                duration: 1.2,
+                ease: "back.out(1.2)"
+            });
+        }
 
-                carouselEl.addEventListener('slide.mdb.carousel', function (e) {
-                    // Select the incoming carousel item slide
-                    const nextSlide = e.relatedTarget;
+        /* ==========================================================================
+           6. TESTIMONIAL CAROUSEL: Elegant Transition Overlay
+           ========================================================================== */
+        function initCarouselAnimations() {
+            // Elegant transition overlay for the testimonial slides
+            const carouselEl = document.getElementById('testimonialCarousel');
+            // Explicitly initialize the MDB Carousel to ensure it starts cycling
+            const carousel = new mdb.Carousel(carouselEl);
 
-                    gsap.fromTo(nextSlide,
-                        { opacity: 0, scale: 1.2 },
-                        { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }
-                    );
-                });
-            }
+            carouselEl.addEventListener('slide.mdb.carousel', function (e) {
+                // Select the incoming carousel item slide
+                const nextSlide = e.relatedTarget;
 
-            /* ==========================================================================
-               7. UTILITY: High-Performance Lightweight Urgency Countdown Timer
-               ========================================================================== */
-            function initCountdownTimer() {
-                let durationInSeconds = 15 * 60; // 15-Minute Funnel Window Anchor
+                gsap.fromTo(nextSlide,
+                    { opacity: 0, scale: 1.2 },
+                    { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }
+                );
+            });
+        }
 
-                const timerInterval = setInterval(function () {
-                    let minutes = Math.floor(durationInSeconds / 60);
-                    let seconds = durationInSeconds % 60;
+        /* ==========================================================================
+           7. UTILITY: High-Performance Lightweight Urgency Countdown Timer
+           ========================================================================== */
+        function initCountdownTimer() {
+            let durationInSeconds = 15 * 60; // 15-Minute Funnel Window Anchor
 
-                    // Ensure clean double digit layout pad metrics
-                    $("#timer-mins").text(minutes < 10 ? "0" + minutes : minutes);
-                    $("#timer-secs").text(seconds < 10 ? "0" + seconds : seconds);
+            const timerInterval = setInterval(function () {
+                let minutes = Math.floor(durationInSeconds / 60);
+                let seconds = durationInSeconds % 60;
 
-                    if (--durationInSeconds < 0) {
-                        clearInterval(timerInterval);
-                        // Persistent loop setup for landing page portfolio persistence
-                        $("#timer-mins").text("14");
-                        $("#timer-secs").text("59");
-                        initCountdownTimer();
-                    }
-                }, 1000);
-            }
-        });
+                // Ensure clean double digit layout pad metrics
+                $("#timer-mins").text(minutes < 10 ? "0" + minutes : minutes);
+                $("#timer-secs").text(seconds < 10 ? "0" + seconds : seconds);
+
+                if (--durationInSeconds < 0) {
+                    clearInterval(timerInterval);
+                    // Persistent loop setup for landing page portfolio persistence
+                    $("#timer-mins").text("14");
+                    $("#timer-secs").text("59");
+                    initCountdownTimer();
+                }
+            }, 1000);
+        }
     </script>
 </body>
 
