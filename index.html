@@ -858,19 +858,33 @@
             // 3. JQUERY EVENT LISTENERS (FAQs & CTAs)
             // ==========================================
 
-            // Tracking FAQ Friction Points
-            $('.accordion-button').on('click', function () {
-                // Check if the clicked accordion is expanding (not collapsing)
-                let isExpanded = $(this).attr('aria-expanded') === 'true';
-                if (isExpanded) {
-                    let questionText = $(this).text().trim();
-                    if (typeof window.logFirebaseEvent === 'function') {
-                        window.logFirebaseEvent('med_diet_faq_toggle_sec_3', {
-                            faq_question: questionText
-                        });
-                    }
-                }
+
+            // When someone toggles the FAQ section
+            $('.faq-toggle-button').string('click', function () {
+
+                // Fire it with a completely distinct Event Name
+                gtag('event', 'faq_toggle', {
+                    'event_category': 'engagement',
+                    'placement': 'med_diet_faq_toggle_sec_3',
+                    'page_title': document.title
+                });
+
+                console.log("FAQ Event fired successfully!");
             });
+
+            // // Tracking FAQ Friction Points
+            // $('.accordion-button').on('click', function () {
+            //     // Check if the clicked accordion is expanding (not collapsing)
+            //     let isExpanded = $(this).attr('aria-expanded') === 'true';
+            //     if (isExpanded) {
+            //         let questionText = $(this).text().trim();
+            //         if (typeof window.logFirebaseEvent === 'function') {
+            //             window.logFirebaseEvent('med_diet_faq_toggle_sec_3', {
+            //                 faq_question: questionText
+            //             });
+            //         }
+            //     }
+            // });
 
             // Tracking Call-To-Action Clicks
             $('.cta-button').on('click', function () {
