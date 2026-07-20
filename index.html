@@ -859,32 +859,40 @@
             // ==========================================
 
 
-            // When someone toggles the FAQ section
-            $('.faq-toggle-button').string('click', function () {
+            // Track FAQ accordion interactions for Firebase and GA4
+            $('.accordion-button').on('click', function () {
+                const button = $(this);
+                const faqItem = button.closest('.faq-item-wrapper');
+                const questionText = button.text().trim();
+                const faqId = faqItem.data('faq-id') || 'unknown_faq';
 
-                // Fire it with a completely distinct Event Name
-                gtag('event', 'faq_toggle', {
-                    'event_category': 'engagement',
-                    'placement': 'med_diet_faq_toggle_sec_3',
-                    'page_title': document.title
-                });
+                window.setTimeout(function () {
+                    const isExpanded = button.attr('aria-expanded') === 'true';
+                    const action = isExpanded ? 'expand' : 'collapse';
+                    const params = {
+                        faq_id: faqId,
+                        faq_question: questionText,
+                        action: action
+                    };
 
-                console.log("FAQ Event fired successfully!");
+                    if (typeof window.logFirebaseEvent === 'function') {
+                        window.logFirebaseEvent('med_diet_faq_toggle_sec_3', params);
+                    }
+
+                    if (typeof window.gtag === 'function') {
+                        window.gtag('event', 'faq_toggle', {
+                            event_category: 'engagement',
+                            event_label: faqId,
+                            placement: 'med_diet_faq_toggle_sec_3',
+                            page_title: document.title,
+                            faq_question: questionText,
+                            action: action
+                        });
+                    } else {
+                        console.log('[Tracking] GA4 fallback:', { event: 'faq_toggle', ...params });
+                    }
+                }, 0);
             });
-
-            // // Tracking FAQ Friction Points
-            // $('.accordion-button').on('click', function () {
-            //     // Check if the clicked accordion is expanding (not collapsing)
-            //     let isExpanded = $(this).attr('aria-expanded') === 'true';
-            //     if (isExpanded) {
-            //         let questionText = $(this).text().trim();
-            //         if (typeof window.logFirebaseEvent === 'function') {
-            //             window.logFirebaseEvent('med_diet_faq_toggle_sec_3', {
-            //                 faq_question: questionText
-            //             });
-            //         }
-            //     }
-            // });
 
             // Tracking Call-To-Action Clicks
             $('.cta-button').on('click', function () {
